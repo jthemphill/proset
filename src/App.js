@@ -23,48 +23,63 @@ function shuffle(a) {
   }
 }
 
-const Card = React.memo((props) => {
-  const r = Math.min(props.width / 2, props.height / 3) / 3;
+class Card extends React.PureComponent {
 
-  let circles = [];
-  for (let i = 0; i < NPIPS; i++) {
-    if (props.pips & (1 << i)) {
-      circles.push(
-        <circle
-          key={i}
-          cx={1.80 * r + (i % 2 ? 2.5 * r : 0)}
-          cy={1.75 * r + 2.75 * r * Math.floor(i / 2)}
-          r={r}
-          fill={COLORS[i]}
-        />
-      );
+  render() {
+    const r = Math.min(this.props.width / 2, this.props.height / 3) / 3;
+
+    let circles = [];
+    for (let i = 0; i < NPIPS; i++) {
+      if (this.props.pips & (1 << i)) {
+        circles.push(
+          <circle
+            key={i}
+            cx={1.80 * r + (i % 2 ? 2.5 * r : 0)}
+            cy={1.75 * r + 2.75 * r * Math.floor(i / 2)}
+            r={r}
+            fill={COLORS[i]}
+          />
+        );
+      }
     }
+
+    return (
+      <div className="Card" onClick={this.props.onClick}>
+        <svg
+          version="1.1"
+          viewBox="0 0 220 320"
+          baseProfile="full"
+          xmlns="http://www.w3.org/2000/svg">
+          <g>
+            <rect
+              stroke={this.getHighlight()}
+              strokeWidth={this.props.pips > 0 ? "5px" : "0px"}
+              fill={CARD_BG}
+              x={5}
+              y={5}
+              width={this.props.width}
+              height={this.props.height}
+              rx={r}
+            />
+            {circles}
+          </g>
+        </svg>
+      </div>
+    );
   }
 
-  return (
-    <div class="Card" onClick={props.onClick}>
-      <svg
-        version="1.1"
-        viewBox="0 0 220 320"
-        baseProfile="full"
-        xmlns="http://www.w3.org/2000/svg">
-        <g>
-          <rect
-            stroke={(props.selected ? HIGHLIGHT : "black")}
-            strokeWidth={props.pips > 0 ? "5px" : "0px"}
-            fill={CARD_BG}
-            x={5}
-            y={5}
-            width={props.width}
-            height={props.height}
-            rx={r}
-          />
-          {circles}
-        </g>
-      </svg>
-    </div>
-  );
-});
+  getHighlight() {
+    if (!this.props.selected) {
+      return "black";
+    }
+
+    if (this.props.spoiler) {
+      return "red";
+    }
+    
+    return HIGHLIGHT;
+  }
+}
 
 class App extends React.PureComponent {
 
@@ -85,13 +100,22 @@ class App extends React.PureComponent {
 
     this.clickHandlers = [];
     for (let i = 0; i < NCARDS; i++) {
-      this.clickHandlers.push(() => this.selectCard(i));
+      this.clickHandlers.push(() => {
+        if (this.state.spoiler) {
+          this.setState({selected: 0, spoiler: false});
+        } else {
+          this.selectCard(i);
+        }
+      });
     }
+
+    this.spoilHandler = () => this.spoil();
 
     this.state = {
       deck,
       cardPips,
       selected: 0,
+      spoiler: false,
     };
   }
 
@@ -106,7 +130,8 @@ class App extends React.PureComponent {
           width={200}
           height={300}
           pips={this.state.cardPips[i]}
-          selected={this.state.selected & (1 << i)}
+          selected={(this.state.selected & (1 << i)) !== 0}
+          spoiler={this.state.spoiler}
           onClick={this.clickHandlers[i]}
         />
       );
@@ -117,14 +142,17 @@ class App extends React.PureComponent {
         <div className="Description">
           <p>
             <a
+              className="App-link"
               href="https://en.wikipedia.org/wiki/Projective_Set_(game)"
             >
               ProSet
             </a> is a variant of <a
+              className="App-link"
               href="https://en.wikipedia.org/wiki/Set_(card_game)"
             >
               Set
             </a> created at <a
+              className="App-link"
               href="https://en.wikipedia.org/wiki/Canada/USA_Mathcamp"
             >
               Canada/USA MathCamp
@@ -132,10 +160,15 @@ class App extends React.PureComponent {
             of dot!
           </p>
           <p>
-            Cards remaining: <strong>{this.state.deck.length}</strong>.
+            Cards remaining: <strong>{this.state.deck.length}</strong>. <button
+              className="App-link"
+              onClick={this.spoilHandler}
+            >
+              I give up. Show me a sample ProSet!
+            </button>
           </p>
         </div>
-        <div class="All-Cards">
+        <div className="All-Cards">
           {cards}
         </div>
       </div>
@@ -161,8 +194,8 @@ class App extends React.PureComponent {
         selectedCards.add(this.state.cardPips[i]);
       }
     }
-    if (selected !== 0 && this.proSetEh(selectedCards)) {
-      this.replaceSelection(selectedCards);
+    if (selected !== 0 && !this.spoiler && this.proSetEh(selectedCards)) {
+      this.replaceSelected(selectedCards);
     } else {
       this.setState({
         selected,
@@ -170,15 +203,15 @@ class App extends React.PureComponent {
     }
   }
 
-  proSetEh(selection) {
+  proSetEh(selected) {
     let pipTotal = 0;
-    for (let s of selection) {
+    for (let s of selected) {
       pipTotal ^= s;
     }
     return pipTotal === 0;
   }
 
-  replaceSelection(selectedCards) {
+  replaceSelected(selectedCards) {
     let cardPips = { ...this.state.cardPips };
     for (let i = 0; i < NCARDS; i++) {
       if (selectedCards.has(cardPips[i])) {
@@ -191,6 +224,53 @@ class App extends React.PureComponent {
       cardPips,
       deck,
       selected: 0,
+    });
+  }
+
+  findProSet(choices, minI, pipTotal) {
+    if (choices > 0 && pipTotal === 0) {
+      return choices;
+    }
+
+    for (let i = minI; i < NCARDS; i++) {
+      const useIt = this.findProSet(
+        choices ^ (1 << i),
+        i + 1,
+        pipTotal ^ this.state.cardPips[i],
+      );
+      if (useIt !== 0) {
+        return useIt;
+      }
+      const loseIt = this.findProSet(
+        choices,
+        i + 1,
+        pipTotal ^ this.state.cardPips[i],
+      );
+      if (loseIt !== 0) {
+        return loseIt;
+      }
+    }
+
+    return 0;
+  }
+
+  spoil() {
+    const proSet = this.findProSet(0, 0, 0);
+    let selection = [];
+    for (let i = 0; i < NCARDS; i++) {
+      if (proSet & (1 << i)) {
+        selection.push(this.state.cardPips[i]);
+      }
+    }
+    let selected = 0;
+    for (let i = 0; i < NCARDS; i++) {
+      if (proSet & (1 << i)) {
+        selected ^= (1 << i);
+      }
+    }
+    this.setState({
+      selected,
+      spoiler: true,
     });
   }
 }
