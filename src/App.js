@@ -6,11 +6,12 @@ const NPIPS = 6;
 const COLORS = [
   "red",
   "orange",
-  "yellow",
+  "#f7f020",
   "green",
   "blue",
   "purple",
 ];
+const HIGHLIGHT = "#00aa00";
 
 function shuffle(a) {
   for (let i = a.length; i > 0; i--) {
@@ -30,7 +31,7 @@ const Card = React.memo((props) => {
       circles.push(
         <circle
           key={i}
-          cx={1.75 * r + (i % 2 ? 2.5 * r : 0)}
+          cx={1.80 * r + (i % 2 ? 2.5 * r : 0)}
           cy={1.75 * r + 2.75 * r * Math.floor(i / 2)}
           r={r}
           fill={COLORS[i]}
@@ -49,7 +50,7 @@ const Card = React.memo((props) => {
         xmlns="http://www.w3.org/2000/svg">
         <g>
           <rect
-            stroke={(props.selected ? "green" : "black")}
+            stroke={(props.selected ? HIGHLIGHT : "black")}
             strokeWidth={props.pips > 0 ? "5px" : "0px"}
             fill="white"
             x={5}
