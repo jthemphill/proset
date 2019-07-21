@@ -12,6 +12,7 @@ const COLORS = [
   "purple",
 ];
 const HIGHLIGHT = "#00aa00";
+const CARD_BG = "#dddddd";
 
 function shuffle(a) {
   for (let i = a.length; i > 0; i--) {
@@ -51,7 +52,7 @@ const Card = React.memo((props) => {
           <rect
             stroke={(props.selected ? HIGHLIGHT : "black")}
             strokeWidth={props.pips > 0 ? "5px" : "0px"}
-            fill="white"
+            fill={CARD_BG}
             x={5}
             y={5}
             width={props.width}
