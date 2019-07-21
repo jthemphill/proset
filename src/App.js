@@ -131,6 +131,9 @@ class App extends React.PureComponent {
             </a>. Find a set of cards which have an even number of each colour
             of dot!
           </p>
+          <p>
+            Cards remaining: <strong>{this.state.deck.length}</strong>.
+          </p>
         </div>
         <div class="All-Cards">
           {cards}
