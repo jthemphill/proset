@@ -35,14 +35,13 @@ const Card = React.memo((props) => {
           cy={1.75 * r + 2.75 * r * Math.floor(i / 2)}
           r={r}
           fill={COLORS[i]}
-          onClick={props.onClick}
         />
       );
     }
   }
 
   return (
-    <div class="Card">
+    <div class="Card" onClick={props.onClick}>
       <svg
         version="1.1"
         viewBox="0 0 220 320"
@@ -58,7 +57,6 @@ const Card = React.memo((props) => {
             width={props.width}
             height={props.height}
             rx={r}
-            onClick={props.onClick}
           />
           {circles}
         </g>
