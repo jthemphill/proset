@@ -3,7 +3,7 @@ import './App.css';
 
 const NCARDS = 7;
 const NPIPS = 6;
-const COLORS = [
+const COLOURS = [
   "red",
   "orange",
   "#f7f020",
@@ -37,7 +37,7 @@ class Card extends React.PureComponent {
             cx={1.80 * r + (i % 2 ? 2.5 * r : 0)}
             cy={1.75 * r + 2.75 * r * Math.floor(i / 2)}
             r={r}
-            fill={COLORS[i]}
+            fill={COLOURS[i]}
           />
         );
       }
