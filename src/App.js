@@ -38,13 +38,14 @@ class Card extends React.PureComponent {
             cy={1.75 * r + 2.75 * r * Math.floor(i / 2)}
             r={r}
             fill={COLOURS[i]}
+            onClick={this.props.onClick}
           />
         );
       }
     }
 
     return (
-      <div className="Card" onClick={this.props.onClick}>
+      <div className="Card">
         <svg
           version="1.1"
           viewBox="0 0 220 320"
@@ -60,6 +61,7 @@ class Card extends React.PureComponent {
               width={this.props.width}
               height={this.props.height}
               rx={r}
+              onClick={this.props.onClick}
             />
             {circles}
           </g>
