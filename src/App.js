@@ -49,7 +49,7 @@ class Card extends React.PureComponent {
             cx={1.80 * r + (i % 2 ? 2.5 * r : 0)}
             cy={1.75 * r + 2.75 * r * Math.floor(i / 2)}
             r={r}
-            fill={COLOURS[i]}
+            fill={PIP_COLOURS[i]}
             onClick={this.props.onClick}
           />
         );
