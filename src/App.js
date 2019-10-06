@@ -56,6 +56,8 @@ class Card extends React.PureComponent {
       }
     }
 
+    const testId = this.getTestId();
+
     return (
       <div className="Card">
         <svg
@@ -65,6 +67,7 @@ class Card extends React.PureComponent {
           xmlns="http://www.w3.org/2000/svg">
           <g>
             <rect
+              data-testid={testId}
               stroke={this.getHighlight()}
               strokeWidth={this.props.pips > 0 ? "5px" : "0px"}
               fill={CARD_BG}
@@ -80,6 +83,22 @@ class Card extends React.PureComponent {
         </svg>
       </div>
     );
+  }
+
+  /**
+   * Return an identifier that tests can use to determine if a card is
+   * selected or spoiled.
+   */
+  getTestId() {
+    if (!this.props.selected) {
+      return 'unselected-card';
+    }
+
+    if (this.props.spoiler) {
+      return 'spoiled-card';
+    }
+
+    return 'selected-card';
   }
 
   /**
