@@ -1,9 +1,11 @@
 import React from 'react';
 import './App.css';
 
+// Number of visible cards
 const NCARDS = 7;
-const NPIPS = 6;
-const COLOURS = [
+
+// Colour of each pip on the card
+const PIP_COLOURS = [
   "red",
   "orange",
   "#f7f020",
@@ -11,25 +13,35 @@ const COLOURS = [
   "blue",
   "purple",
 ];
+
+// Border of a selected card
 const HIGHLIGHT = "#00aa00";
+
+// Background colour of each card
 const CARD_BG = "#dddddd";
 
-function shuffle(a) {
-  for (let i = a.length; i > 0; i--) {
+/**
+ * Randomise the given list of cards.
+ */
+function shuffle(deck) {
+  for (let i = deck.length; i > 0; i--) {
     const j = Math.floor(Math.random() * i);
-    const tmp = a[i - 1];
-    a[i - 1] = a[j];
-    a[j] = tmp;
+    const tmp = deck[i - 1];
+    deck[i - 1] = deck[j];
+    deck[j] = tmp;
   }
 }
 
 class Card extends React.PureComponent {
 
+  /**
+   * React method to display this card as HTML.
+   */
   render() {
     const r = Math.min(this.props.width / 2, this.props.height / 3) / 3;
 
     let circles = [];
-    for (let i = 0; i < NPIPS; i++) {
+    for (let i = 0; i < PIP_COLOURS.length; i++) {
       if (this.props.pips & (1 << i)) {
         circles.push(
           <circle
@@ -70,6 +82,9 @@ class Card extends React.PureComponent {
     );
   }
 
+  /**
+   * What colour should the border around this card be?
+   */
   getHighlight() {
     if (!this.props.selected) {
       return "black";
@@ -78,28 +93,37 @@ class Card extends React.PureComponent {
     if (this.props.spoiler) {
       return "red";
     }
-    
+
     return HIGHLIGHT;
   }
 }
 
+/**
+ * Represents the overall game.
+ */
 class App extends React.PureComponent {
 
   constructor() {
     super();
 
+    // Create a deck of (2^numpips) - 1 cards. Each card is
+    // represented by an integer between 1 and (2^numpips) - 1. Each
+    // pip is present in a card iff that bit is set in the integer's
+    // binary representation.
     let deck = [];
-    for (let i = 1; i < (1 << NPIPS); i++) {
+    for (let i = 1; i < (1 << PIP_COLOURS.length); i++) {
       deck.push(i);
     }
     shuffle(deck);
 
-    let cardPips = {};
+    // Draw and display some cards from the deck
+    let visibleCards = {};
     for (let i = 0; i < NCARDS; i++) {
-      cardPips[i] = 0;
+      visibleCards[i] = 0;
     }
-    this.drawCards(cardPips, deck);
+    this.drawCards(visibleCards, deck);
 
+    // Allow people to select the cards by clicking on them
     this.clickHandlers = [];
     for (let i = 0; i < NCARDS; i++) {
       this.clickHandlers.push(() => {
@@ -111,16 +135,21 @@ class App extends React.PureComponent {
       });
     }
 
+    // Allow people to click the spoiler button to see a solution
     this.spoilHandler = () => this.spoil();
 
+    // Set the React state
     this.state = {
       deck,
-      cardPips,
+      visibleCards,
       selected: 0,
       spoiler: false,
     };
   }
 
+  /**
+   * React method to display the app as HTML.
+   */
   render() {
     let cards = [];
     for (let i = 0; i < NCARDS; i++) {
@@ -131,7 +160,7 @@ class App extends React.PureComponent {
           y={10 + (i % 2 ? 310 : 0)}
           width={200}
           height={300}
-          pips={this.state.cardPips[i]}
+          pips={this.state.visibleCards[i]}
           selected={(this.state.selected & (1 << i)) !== 0}
           spoiler={this.state.spoiler}
           onClick={this.clickHandlers[i]}
@@ -177,23 +206,30 @@ class App extends React.PureComponent {
     );
   }
 
-  drawCards(cardPips, deck) {
+  /**
+   * Replace empty slots in the visible cards with new cards from the
+   * deck.
+   */
+  drawCards(visibleCards, deck) {
     for (let i = 0; i < NCARDS; i++) {
-      if (cardPips[i] === 0) {
+      if (visibleCards[i] === 0) {
         if (deck.length === 0) {
           return;
         }
-        cardPips[i] = deck.pop();
+        visibleCards[i] = deck.pop();
       }
     }
   }
 
+  /**
+   * Select the card in the ith slot among the visible cards.
+   */
   selectCard(i) {
     const selected = this.state.selected ^ (1 << i);
     let selectedCards = new Set();
     for (let i = 0; i < NCARDS; i++) {
       if (selected & (1 << i)) {
-        selectedCards.add(this.state.cardPips[i]);
+        selectedCards.add(this.state.visibleCards[i]);
       }
     }
     if (selected !== 0 && !this.spoiler && this.proSetEh(selectedCards)) {
@@ -205,30 +241,42 @@ class App extends React.PureComponent {
     }
   }
 
-  proSetEh(selected) {
+  /**
+   * Return true iff the given list of cards has an even number of
+   * each dot.
+   */
+  proSetEh(selectedCards) {
     let pipTotal = 0;
-    for (let s of selected) {
-      pipTotal ^= s;
+    for (let selectedCard of selectedCards) {
+      pipTotal ^= selectedCard;
     }
     return pipTotal === 0;
   }
 
+  /**
+   * Remove each of the given cards from the visible cards and draw
+   * new cards to replace them.
+   */
   replaceSelected(selectedCards) {
-    let cardPips = { ...this.state.cardPips };
+    let visibleCards = { ...this.state.visibleCards };
     for (let i = 0; i < NCARDS; i++) {
-      if (selectedCards.has(cardPips[i])) {
-        cardPips[i] = 0;
+      if (selectedCards.has(visibleCards[i])) {
+        visibleCards[i] = 0;
       }
     }
     let deck = [...this.state.deck];
-    this.drawCards(cardPips, deck);
+    this.drawCards(visibleCards, deck);
     this.setState({
-      cardPips,
+      visibleCards,
       deck,
       selected: 0,
     });
   }
 
+  /**
+   * Find and return a selection of cards making a ProSet. Used to
+   * make the spoiler button work.
+   */
   findProSet(choices, minI, pipTotal) {
     if (choices > 0 && pipTotal === 0) {
       return choices;
@@ -238,7 +286,7 @@ class App extends React.PureComponent {
       const useIt = this.findProSet(
         choices ^ (1 << i),
         i + 1,
-        pipTotal ^ this.state.cardPips[i],
+        pipTotal ^ this.state.visibleCards[i],
       );
       if (useIt !== 0) {
         return useIt;
@@ -246,7 +294,7 @@ class App extends React.PureComponent {
       const loseIt = this.findProSet(
         choices,
         i + 1,
-        pipTotal ^ this.state.cardPips[i],
+        pipTotal ^ this.state.visibleCards[i],
       );
       if (loseIt !== 0) {
         return loseIt;
@@ -256,12 +304,15 @@ class App extends React.PureComponent {
     return 0;
   }
 
+  /**
+   * Find a selection of cards making a ProSet and highlight them.
+   */
   spoil() {
     const proSet = this.findProSet(0, 0, 0);
     let selection = [];
     for (let i = 0; i < NCARDS; i++) {
       if (proSet & (1 << i)) {
-        selection.push(this.state.cardPips[i]);
+        selection.push(this.state.visibleCards[i]);
       }
     }
     let selected = 0;
