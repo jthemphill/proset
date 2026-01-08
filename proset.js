@@ -3,19 +3,13 @@ const NCARDS = 7;
 
 // Colour of each pip on the card
 const PIP_COLOURS = [
-  "red",
-  "orange",
+  "#ef4444",
+  "#f97316",
   "#f7f020",
-  "green",
-  "blue",
-  "purple",
+  "#22c55e",
+  "#3b82f6",
+  "#a855f7",
 ];
-
-// Border of a selected card
-const HIGHLIGHT = "#00aa00";
-
-// Background colour of each card
-const CARD_BG = "#dddddd";
 
 /**
  * Randomise the given list of cards.
@@ -57,20 +51,19 @@ function createCard(index, pips, selected, spoiler, onClick) {
   }
   rect.setAttribute('data-testid', testId);
 
-  // Set highlight
-  let highlight = "black";
-  if (selected) {
-    highlight = spoiler ? "red" : HIGHLIGHT;
+  // Set CSS classes for styling
+  rect.setAttribute('class', 'card-rect');
+  if (pips === 0) {
+    rect.classList.add('empty');
+  } else if (selected) {
+    rect.classList.add(spoiler ? 'spoiled' : 'selected');
   }
-  rect.setAttribute('stroke', highlight);
-  rect.setAttribute('stroke-width', pips > 0 ? "5px" : "0px");
-  rect.setAttribute('fill', CARD_BG);
+
   rect.setAttribute('x', 5);
   rect.setAttribute('y', 5);
   rect.setAttribute('width', width);
   rect.setAttribute('height', height);
   rect.setAttribute('rx', r);
-  rect.style.cursor = 'pointer';
   rect.addEventListener('click', onClick);
 
   g.appendChild(rect);
@@ -79,11 +72,11 @@ function createCard(index, pips, selected, spoiler, onClick) {
   for (let i = 0; i < PIP_COLOURS.length; i++) {
     if (pips & (1 << i)) {
       const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('class', 'card-pip');
       circle.setAttribute('cx', 1.80 * r + (i % 2 ? 2.5 * r : 0));
       circle.setAttribute('cy', 1.75 * r + 2.75 * r * Math.floor(i / 2));
       circle.setAttribute('r', r);
       circle.setAttribute('fill', PIP_COLOURS[i]);
-      circle.style.cursor = 'pointer';
       circle.addEventListener('click', onClick);
       g.appendChild(circle);
     }
