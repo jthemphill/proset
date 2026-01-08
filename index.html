@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <title>ProSet</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+          "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .App {
+        background-color: #282c34;
+        min-height: 100vh;
+        text-align: center;
+      }
+
+      .All-Cards {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .Card {
+        display: flex;
+        flex: auto;
+      }
+
+      .Card svg {
+        height: 30vmin;
+        flex: auto;
+      }
+
+      .Description {
+        color: white;
+      }
+
+      .Description a {
+        color: #61dafb;
+      }
+
+      .App-link {
+        color: #61dafb;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="proset.js"></script>
+  </body>
+</html>
