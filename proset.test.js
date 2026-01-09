@@ -4,6 +4,7 @@ import { ProSetGame, NCARDS } from "./proset.js";
 test('spoiler algorithm finds a valid ProSet', () => {
   // Mock the DOM so we can instantiate the game
   globalThis.document = {
+    addEventListener: () => {},
     getElementById: (id) => {
       if (id === 'cards-remaining') {
         return { textContent: '' };

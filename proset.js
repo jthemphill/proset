@@ -124,6 +124,13 @@ class ProSetGame {
       });
     }
 
+    // Add keyboard shortcut to test win animation (press 'W')
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "w" || e.key === "W") {
+        this.triggerWinAnimation();
+      }
+    });
+
     this.render();
   }
 
@@ -140,6 +147,18 @@ class ProSetGame {
         this.visibleCards[i] = this.deck.pop();
       }
     }
+  }
+
+  /**
+   * Check if all visible cards have been cleared.
+   */
+  allCardsCleared() {
+    for (let i = 0; i < NCARDS; i++) {
+      if (this.visibleCards[i] !== 0) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -185,6 +204,12 @@ class ProSetGame {
     }
     this.drawCards();
     this.selected = 0;
+
+    // Check for win condition after replacing cards
+    if (this.deck.length === 0 && this.allCardsCleared()) {
+      this.triggerWinAnimation();
+    }
+
     this.render();
   }
 
@@ -233,6 +258,110 @@ class ProSetGame {
     this.selected = selected;
     this.spoiler = true;
     this.render();
+  }
+
+  /**
+   * Trigger the win animation with cascading cards.
+   */
+  triggerWinAnimation() {
+    // Create overlay for animation
+    const overlay = document.createElement("div");
+    overlay.id = "win-animation-overlay";
+    document.body.appendChild(overlay);
+
+    // Create bouncing cards
+    const numCards = 20;
+    const cards = [];
+
+    for (let i = 0; i < numCards; i++) {
+      // Generate random card with random pips
+      const randomPips =
+        Math.floor(Math.random() * (1 << (PIP_COLOURS.length - 1))) + 1;
+
+      const cardEl = createCard(i, randomPips, false, false, () => {});
+      cardEl.classList.add("bouncing-card");
+
+      // Set initial position and physics properties
+      const card = {
+        element: cardEl,
+        x: Math.random() * window.innerWidth,
+        y: -300 - Math.random() * 500, // Start above viewport
+        vx: (Math.random() - 0.5) * 8, // Horizontal velocity
+        vy: Math.random() * 3 + 2, // Initial downward velocity
+        rotation: Math.random() * 360,
+        rotationSpeed: (Math.random() - 0.5) * 10,
+      };
+
+      overlay.appendChild(cardEl);
+      cards.push(card);
+
+      // Stagger the start times
+      setTimeout(() => {
+        card.active = true;
+      }, i * 100);
+    }
+
+    // Animation loop
+    const gravity = 0.5;
+    const bounceDamping = 0.7;
+    const groundLevel = window.innerHeight - 150;
+
+    const animate = () => {
+      let allSettled = true;
+
+      cards.forEach((card) => {
+        if (!card.active) {
+          // Card hasn't started yet, so we're not settled
+          allSettled = false;
+          return;
+        }
+
+        // Apply gravity
+        card.vy += gravity;
+
+        // Update position
+        card.x += card.vx;
+        card.y += card.vy;
+        card.rotation += card.rotationSpeed;
+
+        // Bounce off ground
+        if (card.y > groundLevel) {
+          card.y = groundLevel;
+          card.vy = -card.vy * bounceDamping;
+          card.rotationSpeed *= bounceDamping;
+
+          // Stop bouncing if velocity is very small
+          if (Math.abs(card.vy) < 0.5) {
+            card.vy = 0;
+            card.rotationSpeed = 0;
+          } else {
+            allSettled = false;
+          }
+        } else if (card.y < groundLevel) {
+          allSettled = false;
+        }
+
+        // Bounce off sides
+        if (card.x < 0 || card.x > window.innerWidth - 100) {
+          card.vx = -card.vx * bounceDamping;
+          card.x = Math.max(0, Math.min(window.innerWidth - 100, card.x));
+        }
+
+        // Apply transforms
+        card.element.style.transform = `translate(${card.x}px, ${card.y}px) rotate(${card.rotation}deg)`;
+      });
+
+      if (!allSettled) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    animate();
+
+    // Click to dismiss
+    overlay.addEventListener("click", () => {
+      overlay.remove();
+    });
   }
 
   /**

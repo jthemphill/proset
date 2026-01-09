@@ -152,6 +152,28 @@
       .card-pip {
         cursor: pointer;
       }
+
+      /* Win animation styles */
+      #win-animation-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 1000;
+      }
+
+      .bouncing-card {
+        position: absolute;
+        top: 0;
+        left: 0;
+        will-change: transform;
+      }
+
+      .bouncing-card svg {
+        max-height: 200px;
+        min-height: 150px;
+      }
     </style>
   </head>
   <body>
@@ -160,16 +182,30 @@
       <div class="App">
         <div class="Description">
           <p>
-            <a class="App-link" href="https://en.wikipedia.org/wiki/Projective_Set_(game)">ProSet</a>
+            <a
+              class="App-link"
+              href="https://en.wikipedia.org/wiki/Projective_Set_(game)"
+              >ProSet</a
+            >
             is a variant of
-            <a class="App-link" href="https://en.wikipedia.org/wiki/Set_(card_game)">Set</a>
+            <a
+              class="App-link"
+              href="https://en.wikipedia.org/wiki/Set_(card_game)"
+              >Set</a
+            >
             created at
-            <a class="App-link" href="https://en.wikipedia.org/wiki/Canada/USA_Mathcamp">Canada/USA MathCamp</a>.
-            Find a set of cards which have an even number of each colour of dot!
+            <a
+              class="App-link"
+              href="https://en.wikipedia.org/wiki/Canada/USA_Mathcamp"
+              >Canada/USA MathCamp</a
+            >. Find a set of cards which have an even number of each colour of
+            dot!
           </p>
           <p>
             Cards remaining: <strong id="cards-remaining">0</strong>.
-            <button class="App-link" id="spoiler-button">I give up. Show me a sample ProSet!</button>
+            <button class="App-link" id="spoiler-button">
+              I give up. Show me a sample ProSet!
+            </button>
           </p>
         </div>
         <div class="All-Cards" id="cards-container"></div>
