@@ -12,9 +12,9 @@
 
       body {
         margin: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-          "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-          sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+          "Helvetica Neue", sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         background: #fafafa;
@@ -156,7 +156,25 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div class="App">
+        <div class="Description">
+          <p>
+            <a class="App-link" href="https://en.wikipedia.org/wiki/Projective_Set_(game)">ProSet</a>
+            is a variant of
+            <a class="App-link" href="https://en.wikipedia.org/wiki/Set_(card_game)">Set</a>
+            created at
+            <a class="App-link" href="https://en.wikipedia.org/wiki/Canada/USA_Mathcamp">Canada/USA MathCamp</a>.
+            Find a set of cards which have an even number of each colour of dot!
+          </p>
+          <p>
+            Cards remaining: <strong id="cards-remaining">0</strong>.
+            <button class="App-link" id="spoiler-button">I give up. Show me a sample ProSet!</button>
+          </p>
+        </div>
+        <div class="All-Cards" id="cards-container"></div>
+      </div>
+    </div>
     <script type="module" src="proset.js"></script>
   </body>
 </html>

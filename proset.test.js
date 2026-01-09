@@ -4,10 +4,21 @@ import { ProSetGame, NCARDS } from "./proset.js";
 test('spoiler algorithm finds a valid ProSet', () => {
   // Mock the DOM so we can instantiate the game
   globalThis.document = {
-    getElementById: () => ({
-      innerHTML: '',
-      appendChild: () => {},
-    }),
+    getElementById: (id) => {
+      if (id === 'cards-remaining') {
+        return { textContent: '' };
+      }
+      if (id === 'spoiler-button') {
+        return { addEventListener: () => {} };
+      }
+      if (id === 'cards-container') {
+        return {
+          innerHTML: '',
+          appendChild: () => {},
+        };
+      }
+      return null;
+    },
     createElement: () => ({
       className: '',
       innerHTML: '',
@@ -19,6 +30,9 @@ test('spoiler algorithm finds a valid ProSet', () => {
       setAttribute: () => {},
       appendChild: () => {},
       addEventListener: () => {},
+      classList: {
+        add: () => {},
+      },
       style: {},
     }),
   };
@@ -45,7 +59,7 @@ test('spoiler algorithm finds a valid ProSet', () => {
 
   // Verify that the found ProSet is actually valid
   // (has an even number of each pip)
-  expect(game.proSetEh(selectedCards)).toBe(true);
+  expect(game.isProSet(selectedCards)).toBe(true);
 
   // Extra verification: XOR all the cards should equal 0
   let pipTotal = 0;
