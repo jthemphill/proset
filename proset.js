@@ -352,7 +352,7 @@ class ProSetGame {
       });
 
       if (!allSettled) {
-        requestAnimationFrame(animate);
+        window.requestAnimationFrame(animate);
       }
     };
 
