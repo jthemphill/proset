@@ -124,6 +124,14 @@ class ProSetGame {
       });
     }
 
+    // Set up deselect all button event listener
+    const deselectButton = document.getElementById("deselect-button");
+    if (deselectButton) {
+      deselectButton.addEventListener("click", () => {
+        this.deselectAll();
+      });
+    }
+
     // Add keyboard shortcut to test win animation (press 'W')
     document.addEventListener("keydown", (e) => {
       if (e.key === "w" || e.key === "W") {
@@ -257,6 +265,15 @@ class ProSetGame {
     }
     this.selected = selected;
     this.spoiler = true;
+    this.render();
+  }
+
+  /**
+   * Deselect all currently selected cards.
+   */
+  deselectAll() {
+    this.selected = 0;
+    this.spoiler = false;
     this.render();
   }
 
