@@ -202,3 +202,120 @@ test("win animation plays when game is finished", () => {
     }
   });
 });
+
+test("deselect all button clears selected cards", () => {
+  // Mock the DOM
+  globalThis.document = {
+    addEventListener: () => {},
+    getElementById: (id) => {
+      if (id === "cards-remaining") {
+        return { textContent: "" };
+      }
+      if (id === "spoiler-button") {
+        return { addEventListener: () => {} };
+      }
+      if (id === "deselect-button") {
+        return { addEventListener: () => {} };
+      }
+      if (id === "cards-container") {
+        return {
+          innerHTML: "",
+          appendChild: () => {},
+        };
+      }
+      return null;
+    },
+    createElement: () => ({
+      className: "",
+      innerHTML: "",
+      textContent: "",
+      appendChild: () => {},
+      addEventListener: () => {},
+    }),
+    createElementNS: () => ({
+      setAttribute: () => {},
+      appendChild: () => {},
+      addEventListener: () => {},
+      classList: {
+        add: () => {},
+      },
+      style: {},
+    }),
+  };
+
+  // Create a game instance
+  const game = new ProSetGame();
+
+  // Select some cards
+  game.selectCard(0);
+  game.selectCard(1);
+  game.selectCard(2);
+
+  // Verify cards are selected
+  expect(game.selected).toBeGreaterThan(0);
+
+  // Call deselectAll
+  game.deselectAll();
+
+  // Verify all cards are deselected
+  expect(game.selected).toBe(0);
+  expect(game.spoiler).toBe(false);
+});
+
+test("deselect all clears spoiler mode", () => {
+  // Mock the DOM
+  globalThis.document = {
+    addEventListener: () => {},
+    getElementById: (id) => {
+      if (id === "cards-remaining") {
+        return { textContent: "" };
+      }
+      if (id === "spoiler-button") {
+        return { addEventListener: () => {} };
+      }
+      if (id === "deselect-button") {
+        return { addEventListener: () => {} };
+      }
+      if (id === "cards-container") {
+        return {
+          innerHTML: "",
+          appendChild: () => {},
+        };
+      }
+      return null;
+    },
+    createElement: () => ({
+      className: "",
+      innerHTML: "",
+      textContent: "",
+      appendChild: () => {},
+      addEventListener: () => {},
+    }),
+    createElementNS: () => ({
+      setAttribute: () => {},
+      appendChild: () => {},
+      addEventListener: () => {},
+      classList: {
+        add: () => {},
+      },
+      style: {},
+    }),
+  };
+
+  // Create a game instance
+  const game = new ProSetGame();
+
+  // Trigger spoiler mode
+  game.spoil();
+
+  // Verify spoiler mode is active
+  expect(game.spoiler).toBe(true);
+  expect(game.selected).toBeGreaterThan(0);
+
+  // Call deselectAll
+  game.deselectAll();
+
+  // Verify spoiler mode is cleared
+  expect(game.spoiler).toBe(false);
+  expect(game.selected).toBe(0);
+});
